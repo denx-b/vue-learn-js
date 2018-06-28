@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+<div class="user-list" id="app" v-cloak>
+  <button v-if="!list.length" v-on:click="loadUser" class="button button--loader" type="button">
+    Загрузить список
+  </button>
+
+  <button v-else v-on:click="changeUserList" v-bind:title="buttonTitle" class="button button--changer" type="button">
+    {{ changerText }}
+  </button>
+
+  <div v-if="!list.length" class="alert alert--warning">
+    Список пользователей пуст
+  </div>
+
+  <user-list v-else v-bind:list="list" v-on:remove="removeUser" v-show="showUserList"></user-list>
+</div>
+
+<div id="user-list" class="hidden">
+  <table>
+    <caption align="bottom">{{ userCountTitle }}</caption>
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>Имя</th>
+      <th>Фамилия</th>
+      <th>Отчество</th>
+      <th class="user-list__col-avatar">Аватарка</th>
+      <th>&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr v-for="(item, index) in list" v-bind:key="item.id">
+      <td>{{ index+1 }}</td>
+      <td>{{ item.firstName | toUpperCase }}</td>
+      <td>{{ item.lastName }}</td>
+      <td>{{ item.secondName }}</td>
+      <td class="user-list__col-avatar">
+        <img v-bind:src="getAvatarUrl(item)">
+      </td>
+      <td>
+        <button class="button" type="button" v-on:click="removeUser(item.id)">x</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  var num2word = function (n, titles) {
+    var cases = [2, 0, 1, 1, 1, 2],
+      min = Math.min.apply(null, [n % 10, 5]);
+
+    return titles[(n % 100 > 4 && n % 100 < 20) ? 2 : cases[min]];
+  };
+
+  var UserList = {
+    template: "#user-list",
+    props: {
+      list: {
+        type: Array,
+        required: true
+      }
+    },
+    data: function () {
+      return {
+        defaultAvatar: "https://vk.com/images/deactivated_100.png?ava=1"
+      }
+    },
+    filters: {
+      toUpperCase: function (value) {
+        return !value ? "" : value.toUpperCase();
+      }
+    },
+    computed: {
+      userCount: function () {
+        return this.list.length;
+      },
+      // Заголовок таблицы с кол-вом пользователей (склоняется)
+      userCountTitle: function () {
+        var strUsers = num2word(this.userCount, ["пользователь", "пользователя", "пользователей"]);
+        return "В таблице " + this.userCount + " " + strUsers;
+      }
+    },
+    methods: {
+      // Метод возвращает заглушку, если нет аватарки
+      getAvatarUrl: function (user) {
+        return user.avatarUrl || this.defaultAvatar;
+      },
+      // Удаление пользователя
+      removeUser: function (id) {
+        this.$emit('remove', id);
+      }
+    }
+  };
+
+  var app = new Vue({
+    el: "#app",
+    components: {
+      'user-list': UserList
+    },
+    data: function () {
+      return {
+        showUserList: true,
+        buttonTitle: "Показать/скрыть список",
+        list: []
+      };
+    },
+    computed: {
+      // Текст на кнопке Показать/Скрыть
+      changerText: function () {
+        return this.showUserList === true ? "Скрыть" : "Показать";
+      }
+    },
+    methods: {
+      loadUser: function () {
+        this.list = [
+          {
+            id: "1",
+            firstName: "Денис",
+            lastName: "Богданов",
+            secondName: "Владимирович",
+            avatarUrl: "https://pp.userapi.com/c637621/v637621076/47d9d/NVjGru-nKMw.jpg?ava=1"
+          },
+          {
+            id: "2",
+            firstName: "Василий",
+            lastName: "Мурашов",
+            secondName: "Владимирович"
+          },
+          {
+            id: "3",
+            firstName: "Марат",
+            lastName: "Тухватуллин",
+            secondName: "Ахмадуллович",
+            avatarUrl: "https://pp.userapi.com/c847017/v847017805/4031d/fjR7KOu93Fo.jpg?ava=1"
+          },
+          {
+            id: "4",
+            firstName: "Максим",
+            lastName: "Кибалка",
+            secondName: "Владимирович",
+            avatarUrl: "https://pp.userapi.com/c622630/v622630784/9364/7xJo4k7FNvo.jpg?ava=1"
+          },
+          {
+            id: "5",
+            firstName: "Максим",
+            lastName: "Терехов",
+            secondName: "Сергеевич",
+            avatarUrl: "https://pp.userapi.com/c845220/v845220195/76b5c/EvNnylcJiNQ.jpg?ava=1"
+          },
+        ];
+
+        console.log("user list uploaded");
+      },
+
+      removeUser: function (id) {
+        this.list = this.list.filter(function (item) {
+          return item.id !== id;
+        });
+      },
+
+      // Меняет значение переменной Показать/Скрыть список пользователей
+      changeUserList: function () {
+        return this.showUserList = !this.showUserList;
+      }
+    }
+  });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+<div class="user-form" id="app" v-cloak>
+  <user-form v-bind:user="user"></user-form>
+</div>
+
+<div id="user-form" class="hidden">
+  <div class="user-form__wrapper">
+    <form class="user-form" action="" method="post">
+      <div class="user-form__form-group">
+        <input v-bind:value="user.firstName" v-on:input="changeInput" name="firstName" placeholder="Имя" type="text">
+      </div>
+      <div class="user-form__form-group">
+        <input v-bind:value="user.lastName" v-on:input="changeInput" name="lastName" placeholder="Фамилия" type="text">
+      </div>
+      <div class="user-form__form-group">
+        <input v-bind:value="user.secondName" v-on:input="changeInput" name="secondName" placeholder="Отчество" type="text">
+      </div>
+      <div class="user-form__form-group">
+        <input class="button" type="submit">
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  var UserForm = {
+    template: "#user-form",
+    props: {
+      user: {
+        type: Object,
+        required: true
+      }
+    },
+    methods: {
+      changeInput: function (event) {
+        let fieldName = event.target.getAttribute("name");
+        if (this.user.hasOwnProperty(fieldName)) {
+          this.user[ fieldName ] = event.target.value;
+        }
+      }
+    }
+  };
+
+  var app = new Vue({
+    el: "#app",
+    components: {
+      'user-form': UserForm
+    },
+    data: function () {
+      return {
+        user: {
+          id: "1",
+          firstName: "Денис",
+          lastName: "Богданов",
+          secondName: "Владимирович",
+          avatarUrl: "https://pp.userapi.com/c637621/v637621076/47d9d/NVjGru-nKMw.jpg?ava=1"
+        }
+      };
+    }
+  });
+</script>
+</body>
+
+</html>
